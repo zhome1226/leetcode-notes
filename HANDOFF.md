@@ -11,7 +11,7 @@
 ## 关键文件与路径
 - 仓库：https://github.com/zhome1226/leetcode-notes
 - box：`/workspace/leetcode-notes`
-- 今日笔记：`01-数组/2026-10-30-移除元素与双指针基础.md`
+- 今日笔记：`01-数组/2026-10-30-双指针与栈基础.md`
 - 进度表：`README.md` · 错题本：`错题本.md`
 
 ## 已做的决定
