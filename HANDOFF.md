@@ -12,6 +12,7 @@
 - 仓库：https://github.com/zhome1226/leetcode-notes
 - box：`/workspace/leetcode-notes`
 - 今日笔记：`01-数组/2026-10-30-双指针与栈基础.md`
+- Python 常用写法：`00-算法基础/Python刷题常用写法.md`
 - 进度表：`README.md` · 错题本：`错题本.md`
 
 ## 已做的决定
@@ -25,4 +26,4 @@
 3. 补 704 笔记与 README 状态（若已 AC）
 
 ## 更新时间
-2026-10-30 15:43（Asia/Shanghai）· via leetcode
+2026-10-30 20:16（Asia/Shanghai）· via leetcode
