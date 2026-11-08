@@ -224,6 +224,78 @@ else:
 
 这里 `!=` 表示“不等于”：找到过有效长度就返回该长度；仍是正无穷说明没找到，返回 `0`。条件表达式只会求值被选中的分支，不会把两边都执行一遍。
 
+## 16. 字典 `dict`：用哈希表记录元素与次数
+
+哈希表可以通过“键（key）”快速找到对应的“值（value）”。Python 的字典 `dict` 是一种哈希表，例如 `scores = {"小明": 90}`，可以用 `scores["小明"]` 取出成绩 `90`。查找、添加和删除的平均时间复杂度为 `O(1)`。
+
+刷题时常用字典保存“元素 → 出现次数”，第 904 题中记录的是**当前窗口**里的水果数量：
+
+```python
+count = {1: 2, 2: 1}
+len(count)          # 2：不同水果的种类数
+sum(count.values()) # 3：窗口中的水果总数
+```
+
+窗口长度也可以直接用 `right - left + 1` 算，不必每轮求次数之和。`count` 是普通变量名，并不是 Python 的特殊关键字。
+
+`set` 是集合，只保存不重复的元素，适合判断“出现过没有”；字典能进一步保存次数，适合判断“移出一个后还剩几个”。
+
+## 17. `dict.get(key, 默认值)`：取值并处理键不存在的情况
+
+```python
+count[fruit] = count.get(fruit, 0) + 1
+```
+
+右边的 `count.get(fruit, 0)` 表示：存在 `fruit` 这个键时，取出对应的值；不存在时，返回默认值 `0`。然后加一，将结果存回 `count[fruit]`。
+
+```python
+count = {}
+fruit = 2
+
+count[fruit] = count.get(fruit, 0) + 1
+# 相当于 count[2] = 0 + 1，字典变成 {2: 1}
+
+count[fruit] = count.get(fruit, 0) + 1
+# 相当于 count[2] = 1 + 1，字典变成 {2: 2}
+```
+
+这行计数写法等价于：
+
+```python
+if fruit in count:
+    count[fruit] += 1
+else:
+    count[fruit] = 1
+```
+
+单独调用 `count.get(fruit, 0)` 不会把缺失的键加进字典；真正写入的是左边的 `count[fruit] = ...`。直接用 `count[fruit]` 读取不存在的键则会报 `KeyError`。
+
+## 18. `del count[key]`：删除字典中的键值对
+
+```python
+count = {1: 0, 2: 2, 3: 1}
+len(count)  # 3：值为 0 的键仍然存在
+
+del count[1]
+len(count)  # 2：键 1 及对应的值一起被删除
+```
+
+值变成 `0` 不会自动删除键。第 904 题用 `len(count)` 判断种类数，所以某种水果数量减到 `0` 时，要显式删除对应的键：
+
+```python
+left_fruit = fruits[left]
+count[left_fruit] -= 1
+
+if count[left_fruit] == 0:
+    del count[left_fruit]
+
+left += 1
+```
+
+这里每次只移出窗口最左边的一个水果；如果数量仍大于 `0`，说明窗口里还有这种水果，不能删除它的记录。`del` 修改的是计数字典；窗口边界的移动由 `left += 1` 完成，原数组不会因为 `del count[...]` 而改变。
+
+删除不存在的键会报 `KeyError`。本题移出的水果一定在当前窗口里，字典中有相应的计数，因此可以先减一，再在归零时删除。
+
 ## 以后怎么维护
 
 每学会一个会反复用的写法，用两三句话加一小节即可。专题笔记里若又讲到同一点，可以只写「见 [Python 刷题常用写法](../00-算法基础/Python刷题常用写法.md)」。
