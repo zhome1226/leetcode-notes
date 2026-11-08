@@ -130,6 +130,100 @@ mid = left + (right - left) // 2
 
 和 `(left + right) // 2` 在 Python 里结果一样，但养成这个写法，以后换到可能溢出的语言也不容易踩坑。
 
+## 13. `float('inf')`：用正无穷初始化最小值
+
+```python
+min_len = float('inf')
+```
+
+`float('inf')` 表示正无穷大，比任何有限数字都大。要求最小值时，先设成它，第一次遇到实际候选值就能更新：
+
+```python
+min_len = min(min_len, 4)  # 从正无穷变成 4
+min_len = min(min_len, 2)  # 更新为 2
+min_len = min(min_len, 3)  # 仍然是 2
+```
+
+第 209 题中，如果结束后 `min_len` 仍是正无穷，说明从未找到达标窗口，应返回 `0`。不能初始化为 `0`，否则 `min(0, 正整数长度)` 永远是 `0`。
+
+## 14. `for` 和 `while`：看循环条件与指针如何移动
+
+`for` 从可迭代对象中依次取值；`while` 每轮执行前检查条件，条件为真就继续，循环涉及的指针通常需要自己更新。例如：
+
+```python
+for right in range(len(nums)):
+    print(nums[right])
+```
+
+也可以写成：
+
+```python
+right = 0
+while right < len(nums):
+    print(nums[right])
+    right += 1
+```
+
+对这里的 `range`，下一轮的 `right` 由迭代器提供，因此 `for` 内不必手动 `right += 1`；`while` 若忘记推进指针，可能一直重复执行。
+
+### 第 209 题：两个 `for` 和两个 `while` 的区别
+
+朴素枚举可以用两个 `for`，每换一个起点，就重新向右累加：
+
+```python
+# 放在已初始化 min_len 的求解函数中
+for left in range(len(nums)):
+    cur_sum = 0
+    for right in range(left, len(nums)):
+        cur_sum += nums[right]
+        if cur_sum >= target:
+            min_len = min(min_len, right - left + 1)
+            break  # 对这个起点，继续向右只会更长
+```
+
+这种写法会反复计算重叠区间。即使有 `break`，最坏情况下（例如目标大于整个数组总和）仍要做 `n + (n-1) + ... + 1` 次累加，时间复杂度为 `O(n²)`。
+
+第 209 题的滑动窗口用两个 `while`，但 `left` 不会在外层每轮重新归零，`cur_sum` 也会沿用。左右边界在整个过程中各最多向右移动 `n` 次，所以时间复杂度是 `O(n)`。
+
+外层也可以改成 `for`，保留内层 `while`，算法和复杂度不变：
+
+```python
+# 放在求解函数中，target 是目标值
+left = 0
+cur_sum = 0
+min_len = float('inf')
+
+for right in range(len(nums)):
+    cur_sum += nums[right]
+    while cur_sum >= target:
+        min_len = min(min_len, right - left + 1)
+        cur_sum -= nums[left]
+        left += 1
+```
+
+外层负责依次加入右端元素，内层负责在达标时反复移出左端元素。不要把内层机械改成每轮重新枚举的 `for left in range(...)`，否则会破坏窗口状态的维护。
+
+**复杂度取决于总执行次数与指针是否重置，不能只看用了 `for` 还是 `while`。** 两个 `for` 不一定是 `O(n²)`，两个 `while` 也不一定是 `O(n)`。
+
+## 15. `return A if 条件 else B`：条件表达式
+
+```python
+return min_len if min_len != float('inf') else 0
+```
+
+结构是 `A if 条件 else B`：先判断条件，成立就选择 `A`，否则选择 `B`，然后 `return` 把所选结果返回。
+
+上面的写法等价于：
+
+```python
+if min_len != float('inf'):
+    return min_len
+else:
+    return 0
+```
+
+这里 `!=` 表示“不等于”：找到过有效长度就返回该长度；仍是正无穷说明没找到，返回 `0`。条件表达式只会求值被选中的分支，不会把两边都执行一遍。
+
 ## 以后怎么维护
 
 每学会一个会反复用的写法，用两三句话加一小节即可。专题笔记里若又讲到同一点，可以只写「见 [Python 刷题常用写法](../00-算法基础/Python刷题常用写法.md)」。
